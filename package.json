@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
-    "build:test": "vite build --mode test", 
-    "build:prod": "vite build --mode production" ,
+    "build": "tsc && vite build",
+    "build:dev": "tsc && vite build --mode dev",
+    "build:test": "tsc && vite build --mode test", 
+    "build:prod": "tsc && vite build --mode production" ,
     "lint": "eslint .",
     "preview": "vite preview"
   },

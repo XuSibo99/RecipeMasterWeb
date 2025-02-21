@@ -15,9 +15,13 @@ function App() {
       });
   }, []);
 
+  useEffect(() => {
+    setMessage("Hello World");
+  }, []);
+
   return (
     <div>
-      <h1>{message}</h1>
+      <h1>{baseUrl} {message}</h1>
     </div>
   );
 }
