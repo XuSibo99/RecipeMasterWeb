@@ -9,15 +9,16 @@ import {
   ListItemText,
 } from "@mui/material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import { Link } from "react-router-dom";
 
 const menuList = [
-  "Recipe Generation",
-  "Meal Planner",
-  "Shopping List",
-  "Search & Discovery",
-  "User-Submitted Recipes",
-  "Rating & Comments",
-  "AI-Powered Suggestion",
+  { label: "Recipe Generation", path: "recipe-generation" },
+  { label: "Meal Planner", path: "meal-planner" },
+  { label: "Shopping List", path: "shopping-list" },
+  { label: "Search & Discovery", path: "search-discovery" },
+  { label: "User-Submitted Recipes", path: "user-submit" },
+  { label: "Rating & Comments", path: "rating-comments" },
+  { label: "AI-Powered Suggestion", path: "ai-suggestion" },
 ];
 
 function Sidebar() {
@@ -63,10 +64,10 @@ function Sidebar() {
 
       {!collapsed && (
         <List>
-          {menuList.map((item, index) => (
+          {menuList.map(({ label, path }, index) => (
             <ListItem disablePadding key={index}>
-              <ListItemButton onClick={() => console.log(`Clicked ${item}`)}>
-                <ListItemText primary={item} />
+              <ListItemButton component={Link} to={path}>
+                <ListItemText primary={label} />
               </ListItemButton>
             </ListItem>
           ))}

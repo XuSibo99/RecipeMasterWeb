@@ -1,8 +1,8 @@
 import { Box } from "@mui/material";
-
-import bgImage from "../../../assets/background.jpg";
+import { Outlet } from "react-router-dom";
 import Header from "../header/Header";
 import Sidebar from "../sidebar/Sidebar";
+import bgImage from "../../../assets/background.jpg";
 
 function Background() {
   return (
@@ -14,16 +14,16 @@ function Background() {
           linear-gradient(rgba(255,255,255,0.4), rgba(255,255,255,0.4)),
           url(${bgImage}) center / cover no-repeat
         `,
+        display: "flex",
       }}
     >
-      <Box sx={{ display: "flex", minHeight: "100vh" }}>
-        <Sidebar />
+      <Sidebar />
 
-        <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
-          <Header title="Recipe Master" />
-          <Box sx={{ flex: 1, overflow: "auto" }}>
-            {"Content will display here"}
-          </Box>
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
+        <Header title="Recipe Master" />
+
+        <Box sx={{ flex: 1, overflow: "auto" }}>
+          <Outlet />
         </Box>
       </Box>
     </Box>
