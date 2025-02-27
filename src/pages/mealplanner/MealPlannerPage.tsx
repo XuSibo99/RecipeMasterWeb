@@ -1,5 +1,11 @@
+import MealCalendar from "./MealCalendar";
+
 function MealPlannerPage() {
-  return <h1>Meal Planner</h1>;
+  return (
+    <div>
+      <MealCalendar />
+    </div>
+  );
 }
 
 export default MealPlannerPage;
