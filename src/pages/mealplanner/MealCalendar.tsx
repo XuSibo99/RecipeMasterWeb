@@ -1,36 +1,41 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { DateSelectArg, EventClickArg } from "@fullcalendar/core/index.js";
-// import "@fullcalendar/common/main.css";
-// import "@fullcalendar/daygrid/main.css";
-
-interface MealEvent {
-  id: string;
-  title: string;
-  start: string;
-}
+import {
+  getMealEventsByUserId,
+  MealEventDTO,
+} from "../../services/mealevent/MealEventService";
+import { v6 as uuidv6 } from "uuid";
 
 function MealCalendar() {
-  const [events, setEvents] = useState<MealEvent[]>([
-    {
-      id: "1",
-      title: "Breakfast: Omelette",
-      start: "2025-01-05",
-    },
-    {
-      id: "2",
-      title: "Lunch: Caesar Salad",
-      start: "2025-01-05T12:00:00",
-    },
-    {
-      id: "3",
-      title: "Dinner: Spaghetti",
-      start: "2025-01-05T18:00:00",
-    },
-  ]);
+  const [mealEvents, setMealEvents] = useState<MealEventDTO[]>([]);
 
+  useEffect(() => {
+    const fetchMealEvents = async () => {
+      try {
+        const data = await getMealEventsByUserId("sibo.xu");
+        setMealEvents(data);
+      } catch (error) {
+        console.error("Error fetching MealEvents", error);
+      }
+    };
+
+    fetchMealEvents();
+  }, []);
+
+  const events = useMemo(() => {
+    return mealEvents.map((event) => ({
+      id: event.id,
+      title: event.title,
+      name: event.name,
+      start: event.start,
+      userId: event.userId,
+    }));
+  }, [mealEvents]);
+
+  console.log("events", events);
   const handleEventClick = (clickInfo: EventClickArg) => {
     const eventTitle = clickInfo.event.title;
     alert(`Clicked on event: ${eventTitle}`);
@@ -42,12 +47,14 @@ function MealCalendar() {
 
     const mealTitle = prompt("Enter a meal title (ex: Breakfast, Pasta...)");
     if (mealTitle) {
-      setEvents((prev) => [
+      setMealEvents((prev) => [
         ...prev,
         {
-          id: String(Date.now()),
-          title: mealTitle,
+          id: uuidv6(),
+          title: "Uer insert meal",
           start: selectInfo.startStr,
+          name: mealTitle,
+          userId: "sibo.xu",
         },
       ]);
     }
@@ -64,13 +71,6 @@ function MealCalendar() {
         events={events}
         eventClick={handleEventClick}
         select={handleDateSelect}
-        // If you want to control date navigation or initialDate:
-        // initialDate="2025-01-01"
-        // headerToolbar={{
-        //   left: 'prev,next today',
-        //   center: 'title',
-        //   right: 'dayGridMonth,dayGridWeek'
-        // }}
       />
     </div>
   );
