@@ -35,7 +35,6 @@ function MealCalendar() {
     }));
   }, [mealEvents]);
 
-  console.log("events", events);
   const handleEventClick = (clickInfo: EventClickArg) => {
     const eventTitle = clickInfo.event.title;
     alert(`Clicked on event: ${eventTitle}`);
