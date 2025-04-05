@@ -1,5 +1,9 @@
 function AiSuggestionPage() {
-  return <h1>Ai Suggestion</h1>;
+  return (
+    <div>
+      <h1>Ai Suggestion</h1>
+    </div>
+  );
 }
 
 export default AiSuggestionPage;

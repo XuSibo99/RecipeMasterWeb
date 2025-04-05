@@ -1,0 +1,23 @@
+.logo {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    justify-content: center;
+  }
+  
+  .logo-image {
+    height: 10px; 
+    width: auto; 
+    margin-right: 10px;
+  }
+  
+  .logo-text {
+    font-size: 36px;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .logo-text-italic {
+    font-style: italic;
+    color: #e17c63; 
+  }
