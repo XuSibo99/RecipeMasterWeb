@@ -1,23 +1,20 @@
-.logo {
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
-    justify-content: center;
-  }
-  
-  .logo-image {
-    height: 10px; 
-    width: auto; 
-    margin-right: 10px;
-  }
-  
-  .logo-text {
-    font-size: 36px;
-    font-weight: bold;
-    color: #333;
-  }
-  
-  .logo-text-italic {
-    font-style: italic;
-    color: #e17c63; 
-  }
+.header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0px 0px;
+  background-color: #fff8ee;
+  border-bottom: 1px solid #e9d6bf;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  position: relative;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo-icon {
+  width: 150px;
+  height: 150px;
+}

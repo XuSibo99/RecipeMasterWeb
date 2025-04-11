@@ -8,22 +8,15 @@ import ShoppingListPage from "../../pages/shoppinglist/ShoppingListPage";
 import UserSubmitPage from "../../pages/usersubmit/UserSubmitPage";
 import Header from "./header/Header";
 import Home from "./home/Home";
+import "./Layout.css";
 
 function Layout() {
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        height: "100vh",
-        minWidth: "100vw",
-        margin: "0",
-        padding: "0",
-      }}
-    >
-      <Header />
+    <div className="layout">
       <Router>
-        <main style={{ padding: "20px" }}>
+        <Header />
+        {/* <div className="separator"></div> */}
+        <main className="layout-main">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="ai-suggestion" element={<AiSuggestionPage />} />

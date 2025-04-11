@@ -1,50 +1,32 @@
+import { NavLink } from "react-router-dom";
+import "./Navigation.css";
+
+const navItems = [
+  { label: "AI Suggestion", path: "/ai-suggestion" },
+  { label: "Meal Planner", path: "/meal-planner" },
+  { label: "Rating Comments", path: "/rating-comments" },
+  { label: "Recipe Generation", path: "/recipe-generation" },
+  { label: "Search Discovery", path: "/search-discovery" },
+  { label: "Shopping List", path: "/shopping-list" },
+  { label: "User Submit", path: "/user-submit" },
+];
+
 function Navigation() {
   return (
-    <nav>
-      <ul
-        style={{
-          display: "flex",
-          justifyContent: "space-around",
-          listStyle: "none",
-          margin: 0,
-          padding: 0,
-        }}
-      >
-        <li>
-          <a href="/ai-suggestion" style={{ color: "#333" }}>
-            AI Suggestion
-          </a>
-        </li>
-        <li>
-          <a href="/meal-planner" style={{ color: "#333" }}>
-            Meal Planner
-          </a>
-        </li>
-        <li>
-          <a href="/rating-comments" style={{ color: "#333" }}>
-            Rating Comments
-          </a>
-        </li>
-        <li>
-          <a href="/recipe-generation" style={{ color: "#333" }}>
-            Recipe Generation
-          </a>
-        </li>
-        <li>
-          <a href="/search-discovery" style={{ color: "#333" }}>
-            Search Discovery
-          </a>
-        </li>
-        <li>
-          <a href="/shopping-list" style={{ color: "#333" }}>
-            Shopping List
-          </a>
-        </li>
-        <li>
-          <a href="/user-submit" style={{ color: "#333" }}>
-            User Submit
-          </a>
-        </li>
+    <nav className="nav-bar">
+      <ul className="nav-list">
+        {navItems.map((item) => (
+          <li key={item.path} className="nav-item">
+            <NavLink
+              to={item.path}
+              className={({ isActive }) =>
+                isActive ? "nav-link active" : "nav-link"
+              }
+            >
+              {item.label}
+            </NavLink>
+          </li>
+        ))}
       </ul>
     </nav>
   );

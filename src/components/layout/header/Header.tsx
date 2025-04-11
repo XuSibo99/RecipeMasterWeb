@@ -1,14 +1,12 @@
 import LogoIcon from "../../../assets/logo.svg?react";
 import Navigation from "../navigation/Navigation";
+import "./Header.css";
 
 function Header() {
   return (
-    <header style={{ color: "#fff", padding: "10px" }}>
-      <div className="logo">
-        <LogoIcon
-          className="logo-image"
-          style={{ width: "200px", height: "auto" }}
-        />
+    <header className="header">
+      <div className="header-logo">
+        <LogoIcon className="logo-icon" />
       </div>
       <Navigation />
     </header>

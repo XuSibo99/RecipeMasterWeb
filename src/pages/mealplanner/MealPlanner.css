@@ -1,0 +1,11 @@
+.meal-planner {
+  height: 100%;
+  width: 100%;
+  display: flex;
+}
+
+.meal-calendar {
+  height: 100%;
+  width: 100%;
+  padding: 0px 20px 0px 10px;
+}

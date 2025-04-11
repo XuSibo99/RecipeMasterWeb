@@ -8,6 +8,7 @@ import {
   MealEventDTO,
 } from "../../services/mealevent/MealEventService";
 import { v6 as uuidv6 } from "uuid";
+import "./MealPlanner.css";
 
 function MealCalendar() {
   const [mealEvents, setMealEvents] = useState<MealEventDTO[]>([]);
@@ -61,7 +62,7 @@ function MealCalendar() {
   };
 
   return (
-    <div style={{ maxWidth: "900px", margin: "0 auto" }}>
+    <div className="meal-calendar">
       <h1>Meal Calendar</h1>
       <FullCalendar
         plugins={[dayGridPlugin, interactionPlugin]}
