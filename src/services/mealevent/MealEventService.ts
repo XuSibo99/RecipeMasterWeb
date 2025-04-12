@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client';
-import {client } from '../../main'
-
+import {client } from '../../main';
 export interface MealEventDTO {
     id: string,
     title: string,
@@ -58,3 +57,15 @@ export const getMealEventsByUserId = async (userId: string): Promise<MealEventDT
         throw new Error('Error fetching data');
     }
 };
+
+export const CREATE_MEAL_EVENT = gql`
+  mutation CreateMealEvent($input: MealEventInput!) {
+    createMealEvent(input: $input) {
+      id
+      title
+      name
+      start
+      userId
+    }
+  }
+`;
