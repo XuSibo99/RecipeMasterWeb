@@ -8,19 +8,13 @@ import {
 } from "@mui/material";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { MealEventFormData } from "../../services/mealevent/MealEventService";
 
 interface CreateMealDialogProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (data: MealEventFormData) => void;
   defaultDate: string;
-}
-
-export interface MealEventFormData {
-  title: string;
-  name: string;
-  start: string;
-  userId: string;
 }
 
 function CreatMealDialog({
