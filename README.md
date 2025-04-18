@@ -1,50 +1,65 @@
-# React + TypeScript + Vite
+# RecipeMaster Web
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[![Deployed on Azure](https://img.shields.io/badge/azure-deployed-blue)](https://recipemasterdevui-azdjewfuh4h0h2e4.australiacentral-01.azurewebsites.net/)
 
-Currently, two official plugins are available:
+🚀 **Live Demo**  
+Skip setup and try RecipeMaster in your browser:  
+👉 [Click here to launch the app](https://recipemasterdevui-azdjewfuh4h0h2e4.australiacentral-01.azurewebsites.net/)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This is the frontend client for **RecipeMaster** — a meal planning app built with React, MUI, GraphQL, and Apollo Client.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## ✨ Features
 
-- Configure the top-level `parserOptions` property like this:
+- Calendar-based meal planner (using FullCalendar)
+- Create, update, and delete meal events
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## 🧱 Tech Stack
+
+- React + TypeScript
+- Apollo Client (GraphQL)
+- Material UI
+- FullCalendar
+- Vite
+- React Hook Form
+
+## ⚙️ Environment Setup
+
+### Prerequisites
+
+- Node.js (v18+ recommended)
+- Vite (`npm install` will handle it)
+
+### Environment Variable Setup
+
+Create a `.env` file and add the following:
+
+```
+VITE_API_URL=http://localhost:8080
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## 💻 Run Locally
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
 ```
+npm install
+npm run dev
+```
+
+Frontend URL: http://localhost:5173
+
+## 🌐 Deployment
+
+This repo is deployed to Azure App Service via GitHub Actions using the dev_recipemasterdevui.yml workflow.
+
+```
+on:
+  push:
+    branches:
+      - dev
+```
+
+## 🔗 Related Projects
+
+👉 [RecipeMaster API (Backend)](https://github.com/XuSibo99/RecipeMasterServices)
+Spring Boot + GraphQL server powering the RecipeMaster app.
