@@ -41,8 +41,8 @@ export const getMealEventById = async (id: string): Promise<MealEventDTO> => {
 };
 
 export const GET_MEAL_EVENTS_BY_USER_ID = gql`
-  query getMealEventByUserId($userId: String!) {
-    getMealEventByUserId(userId: $userId) {
+  query getMealEventsByUserId($userId: String!) {
+    getMealEventsByUserId(userId: $userId) {
       id
       title
       name
@@ -60,7 +60,7 @@ export const getMealEventsByUserId = async (
       query: GET_MEAL_EVENTS_BY_USER_ID,
       variables: { userId },
     });
-    return response.data.getMealEventByUserId;
+    return response.data.getMealEventsByUserId;
   } catch (error) {
     console.error("Error fetching MealEvent by UserId", error);
     throw new Error("Error fetching data");
