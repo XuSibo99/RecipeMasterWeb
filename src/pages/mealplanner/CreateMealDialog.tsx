@@ -59,12 +59,14 @@ function CreateMealDialog({
             name="title"
             control={control}
             rules={{ required: "Meal title is required" }}
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <TextField
                 {...field}
                 label="Meal Title (e.g. Lunch)"
                 fullWidth
                 margin="dense"
+                error={!!fieldState.error}
+                helperText={fieldState.error?.message}
               />
             )}
           />
@@ -73,12 +75,14 @@ function CreateMealDialog({
             name="name"
             control={control}
             rules={{ required: "Meal name is required" }}
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <TextField
                 {...field}
                 label="Meal Name (e.g. Salmon & Rice)"
                 fullWidth
                 margin="dense"
+                error={!!fieldState.error}
+                helperText={fieldState.error?.message}
               />
             )}
           />
@@ -87,8 +91,15 @@ function CreateMealDialog({
             name="userId"
             control={control}
             rules={{ required: "User ID is required" }}
-            render={({ field }) => (
-              <TextField {...field} label="User ID" fullWidth margin="dense" />
+            render={({ field, fieldState }) => (
+              <TextField
+                {...field}
+                label="User ID"
+                fullWidth
+                margin="dense"
+                error={!!fieldState.error}
+                helperText={fieldState.error?.message}
+              />
             )}
           />
 

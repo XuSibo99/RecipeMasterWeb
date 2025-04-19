@@ -1,5 +1,5 @@
 import { gql } from "@apollo/client";
-import { client } from "../../main";
+import { client } from "../../lib/apolloClient";
 export interface MealEventDTO {
   id: string;
   title: string;

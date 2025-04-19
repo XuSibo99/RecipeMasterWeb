@@ -1,5 +1,3 @@
-// src/components/shared/DeleteConfirmationDialog.tsx
-
 import {
   Dialog,
   DialogTitle,
