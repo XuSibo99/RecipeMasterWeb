@@ -4,7 +4,7 @@ import {
   GET_MEAL_EVENTS_BY_USER_ID,
 } from "./MealEventService";
 
-export const UseDeleteMealEvent = () => {
+export const useDeleteMealEvent = () => {
   const [deleteMealEventMutation] = useMutation(DELETE_MEAL_EVENT, {
     refetchQueries: [
       {

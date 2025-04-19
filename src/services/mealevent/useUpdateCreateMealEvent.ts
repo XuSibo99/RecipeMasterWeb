@@ -5,7 +5,7 @@ import {
   UPDATE_MEAL_EVENT,
 } from "./MealEventService";
 
-export const UseUpdateMealEvent = () => {
+export const useUpdateMealEvent = () => {
   const [updateMealEventMutation] = useMutation(UPDATE_MEAL_EVENT, {
     refetchQueries: [
       {

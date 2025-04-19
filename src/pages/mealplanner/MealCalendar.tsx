@@ -10,15 +10,15 @@ import {
 } from "../../services/mealevent/MealEventService";
 // import { v6 as uuidv6 } from "uuid";
 import "./MealPlanner.css";
-import CreatMealDialog from "./CreateMealDialog";
-import { UseCreateMealEvent } from "../../services/mealevent/useCreateMealEvent";
+import CreateMealDialog from "./CreateMealDialog";
+import { useCreateMealEvent } from "../../services/mealevent/useCreateMealEvent";
 import UpdateMealDialog from "./UpdateMealDialog";
-import { UseUpdateMealEvent } from "../../services/mealevent/UseUpdateCreateMealEvent";
+import { useUpdateMealEvent } from "../../services/mealevent/useUpdateCreateMealEvent";
 
 function MealCalendar() {
   const [mealEvents, setMealEvents] = useState<MealEventDTO[]>([]);
-  const { createMeal } = UseCreateMealEvent();
-  const { updateMeal } = UseUpdateMealEvent();
+  const { createMeal } = useCreateMealEvent();
+  const { updateMeal } = useUpdateMealEvent();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
@@ -81,7 +81,7 @@ function MealCalendar() {
         select={handleDateSelect}
       />
       {createDialogOpen && (
-        <CreatMealDialog
+        <CreateMealDialog
           open={createDialogOpen}
           onClose={() => setCreateDialogOpen(false)}
           onSubmit={handleCreateMeal}

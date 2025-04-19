@@ -8,7 +8,7 @@ import {
   DialogActions,
   Button,
 } from "@mui/material";
-import { UseDeleteMealEvent } from "../../services/mealevent/UseDeleteMealEvent";
+import { useDeleteMealEvent } from "../../services/mealevent/useDeleteMealEvent";
 
 interface DeleteMealDialogProps {
   open: boolean;
@@ -24,7 +24,7 @@ const DeleteMealDialog = ({
   id,
   itemName = "this meal",
 }: DeleteMealDialogProps) => {
-  const { deleteMeal } = UseDeleteMealEvent();
+  const { deleteMeal } = useDeleteMealEvent();
   const handleDelete = () => {
     deleteMeal(id);
     onClose();

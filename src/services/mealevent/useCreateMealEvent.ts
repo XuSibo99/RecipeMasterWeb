@@ -5,7 +5,7 @@ import {
   MealEventFormData,
 } from "./MealEventService";
 
-export const UseCreateMealEvent = () => {
+export const useCreateMealEvent = () => {
   const [createMutation] = useMutation(CREATE_MEAL_EVENT, {
     refetchQueries: [
       {

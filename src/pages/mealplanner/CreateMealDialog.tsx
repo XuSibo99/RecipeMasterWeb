@@ -17,7 +17,7 @@ interface CreateMealDialogProps {
   defaultDate: string;
 }
 
-function CreatMealDialog({
+function CreateMealDialog({
   open,
   onClose,
   onSubmit,
@@ -110,4 +110,4 @@ function CreatMealDialog({
   );
 }
 
-export default CreatMealDialog;
+export default CreateMealDialog;
