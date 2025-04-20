@@ -2,13 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import rrulePlugin from "@fullcalendar/rrule";
 import { DateSelectArg, EventClickArg } from "@fullcalendar/core/index.js";
 import {
   getMealEventsByUserId,
   MealEventDTO,
   MealEventFormData,
 } from "../../services/mealevent/MealEventService";
-// import { v6 as uuidv6 } from "uuid";
 import "./MealPlanner.css";
 import CreateMealDialog from "./CreateMealDialog";
 import { useCreateMealEvent } from "../../services/mealevent/useCreateMealEvent";
@@ -38,13 +38,26 @@ function MealCalendar() {
   }, []);
 
   const events = useMemo(() => {
-    return mealEvents.map((event) => ({
-      id: event.id,
-      title: event.title,
-      name: event.name,
-      start: event.start,
-      userId: event.userId,
-    }));
+    return mealEvents.map((event) => {
+      const baseEvent: Record<string, unknown> = {
+        id: event.id,
+        title: event.title,
+        name: event.name,
+        recurrence: event.recurrence,
+        userId: event.userId,
+      };
+
+      if (event.recurrence) {
+        baseEvent.rrule = {
+          freq: event.recurrence,
+          dtstart: event.start,
+        };
+      } else {
+        baseEvent.start = event.start;
+      }
+
+      return baseEvent;
+    });
   }, [mealEvents]);
 
   const handleEventClick = (clickInfo: EventClickArg) => {
@@ -55,6 +68,7 @@ function MealCalendar() {
       name: meal.name,
       start: clickInfo.event.startStr,
       userId: meal.userId,
+      recurrence: meal.recurrence,
     });
     setUpdateDialogOpen(true);
   };
@@ -72,7 +86,7 @@ function MealCalendar() {
     <div className="meal-calendar">
       <h1>Meal Calendar</h1>
       <FullCalendar
-        plugins={[dayGridPlugin, interactionPlugin]}
+        plugins={[dayGridPlugin, interactionPlugin, rrulePlugin]}
         initialView="dayGridMonth"
         selectable={true}
         selectMirror={true}

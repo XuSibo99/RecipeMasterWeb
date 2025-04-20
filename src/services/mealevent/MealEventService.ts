@@ -6,6 +6,7 @@ export interface MealEventDTO {
   name: string;
   start: string;
   userId: string;
+  recurrence?: Recurrence;
 }
 
 export interface MealEventFormData {
@@ -13,7 +14,22 @@ export interface MealEventFormData {
   name: string;
   start: string;
   userId: string;
+  recurrence?: Recurrence;
 }
+
+export enum Recurrence {
+  YEARLY = "YEARLY",
+  MONTHLY = "MONTHLY",
+  WEEKLY = "WEEKLY",
+  DAILY = "DAILY",
+}
+
+export const recurrenceOptions = [
+  { label: "Daily", value: Recurrence.DAILY },
+  { label: "Weekly", value: Recurrence.WEEKLY },
+  { label: "Monthly", value: Recurrence.MONTHLY },
+  { label: "Yearly", value: Recurrence.YEARLY },
+];
 
 export const GET_MEAL_EVENT_BY_ID = gql`
   query getMealEventById($id: String!) {
@@ -23,6 +39,7 @@ export const GET_MEAL_EVENT_BY_ID = gql`
       name
       start
       userId
+      recurrence
     }
   }
 `;
@@ -48,6 +65,7 @@ export const GET_MEAL_EVENTS_BY_USER_ID = gql`
       name
       start
       userId
+      recurrence
     }
   }
 `;
@@ -75,6 +93,7 @@ export const CREATE_MEAL_EVENT = gql`
       name
       start
       userId
+      recurrence
     }
   }
 `;
@@ -87,6 +106,7 @@ export const UPDATE_MEAL_EVENT = gql`
       name
       start
       userId
+      recurrence
     }
   }
 `;

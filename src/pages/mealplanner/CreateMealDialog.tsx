@@ -4,11 +4,18 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
   TextField,
 } from "@mui/material";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { MealEventFormData } from "../../services/mealevent/MealEventService";
+import {
+  MealEventFormData,
+  recurrenceOptions,
+} from "../../services/mealevent/MealEventService";
 
 interface CreateMealDialogProps {
   open: boolean;
@@ -100,6 +107,23 @@ function CreateMealDialog({
                 error={!!fieldState.error}
                 helperText={fieldState.error?.message}
               />
+            )}
+          />
+
+          <Controller
+            name="recurrence"
+            control={control}
+            render={({ field }) => (
+              <FormControl fullWidth margin="dense">
+                <InputLabel>Recurrence</InputLabel>
+                <Select {...field} label="Recurrence" value={field.value || ""}>
+                  {recurrenceOptions.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             )}
           />
 

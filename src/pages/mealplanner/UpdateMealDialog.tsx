@@ -5,10 +5,17 @@ import {
   DialogActions,
   TextField,
   Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
 } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
 import { useEffect, useState } from "react";
-import { MealEventFormData } from "../../services/mealevent/MealEventService";
+import {
+  MealEventFormData,
+  recurrenceOptions,
+} from "../../services/mealevent/MealEventService";
 import DeleteMealDialog from "./DeleteMealDialog";
 
 interface UpdateMealDialogProps {
@@ -25,7 +32,7 @@ const UpdateMealDialog = ({
   defaultValues,
 }: UpdateMealDialogProps) => {
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
-
+  console.log("default value", defaultValues);
   const { control, handleSubmit, reset } = useForm<MealEventFormData>({
     defaultValues: {
       title: "",
@@ -104,6 +111,27 @@ const UpdateMealDialog = ({
                   fullWidth
                   margin="dense"
                 />
+              )}
+            />
+
+            <Controller
+              name="recurrence"
+              control={control}
+              render={({ field }) => (
+                <FormControl fullWidth margin="dense">
+                  <InputLabel>Recurrence</InputLabel>
+                  <Select
+                    {...field}
+                    label="Recurrence"
+                    value={field.value || ""}
+                  >
+                    {recurrenceOptions.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               )}
             />
           </DialogContent>

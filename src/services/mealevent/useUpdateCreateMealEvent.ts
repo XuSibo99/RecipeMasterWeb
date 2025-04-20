@@ -16,11 +16,11 @@ export const useUpdateMealEvent = () => {
   });
 
   const updateMeal = async (id: string, input: Partial<MealEventDTO>) => {
-    const { title, name, start, userId } = input;
+    const { title, name, start, userId, recurrence } = input;
     return updateMealEventMutation({
       variables: {
         id,
-        input: { title, name, start, userId },
+        input: { title, name, start, userId, recurrence },
       },
     });
   };
