@@ -1,5 +1,4 @@
 import { gql } from "@apollo/client";
-import { client } from "../../lib/apolloClient";
 export interface MealEventDTO {
   id: string;
   title: string;
@@ -44,19 +43,6 @@ export const GET_MEAL_EVENT_BY_ID = gql`
   }
 `;
 
-export const getMealEventById = async (id: string): Promise<MealEventDTO> => {
-  try {
-    const response = await client.query({
-      query: GET_MEAL_EVENT_BY_ID,
-      variables: { id },
-    });
-    return response.data.getMealEventById;
-  } catch (error) {
-    console.error("Error fetching MealEvent by ID", error);
-    throw new Error("Error fetching data");
-  }
-};
-
 export const GET_MEAL_EVENTS_BY_USER_ID = gql`
   query getMealEventsByUserId($userId: String!) {
     getMealEventsByUserId(userId: $userId) {
@@ -69,21 +55,6 @@ export const GET_MEAL_EVENTS_BY_USER_ID = gql`
     }
   }
 `;
-
-export const getMealEventsByUserId = async (
-  userId: string
-): Promise<MealEventDTO[]> => {
-  try {
-    const response = await client.query({
-      query: GET_MEAL_EVENTS_BY_USER_ID,
-      variables: { userId },
-    });
-    return response.data.getMealEventsByUserId;
-  } catch (error) {
-    console.error("Error fetching MealEvent by UserId", error);
-    throw new Error("Error fetching data");
-  }
-};
 
 export const CREATE_MEAL_EVENT = gql`
   mutation CreateMealEvent($input: MealEventInput!) {

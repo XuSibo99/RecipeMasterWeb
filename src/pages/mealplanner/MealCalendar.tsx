@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import rrulePlugin from "@fullcalendar/rrule";
 import { DateSelectArg, EventClickArg } from "@fullcalendar/core/index.js";
 import {
-  getMealEventsByUserId,
+  GET_MEAL_EVENTS_BY_USER_ID,
   MealEventDTO,
   MealEventFormData,
 } from "../../services/mealevent/MealEventService";
@@ -14,9 +14,10 @@ import CreateMealDialog from "./CreateMealDialog";
 import { useCreateMealEvent } from "../../services/mealevent/useCreateMealEvent";
 import UpdateMealDialog from "./UpdateMealDialog";
 import { useUpdateMealEvent } from "../../services/mealevent/useUpdateCreateMealEvent";
+import { useQuery } from "@apollo/client";
 
 function MealCalendar() {
-  const [mealEvents, setMealEvents] = useState<MealEventDTO[]>([]);
+  // const [mealEvents, setMealEvents] = useState<MealEventDTO[]>([]);
   const { createMeal } = useCreateMealEvent();
   const { updateMeal } = useUpdateMealEvent();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -24,20 +25,12 @@ function MealCalendar() {
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
   const [selectedMeal, setSelectedMeal] = useState<MealEventDTO | null>(null);
 
-  useEffect(() => {
-    const fetchMealEvents = async () => {
-      try {
-        const data = await getMealEventsByUserId("sibo.xu");
-        setMealEvents(data);
-      } catch (error) {
-        console.error("Error fetching MealEvents", error);
-      }
-    };
-
-    fetchMealEvents();
-  }, []);
+  const { data } = useQuery(GET_MEAL_EVENTS_BY_USER_ID, {
+    variables: { userId: "sibo.xu" },
+  });
 
   const events = useMemo(() => {
+    const mealEvents: MealEventDTO[] = data?.getMealEventsByUserId ?? [];
     return mealEvents.map((event) => {
       const baseEvent: Record<string, unknown> = {
         id: event.id,
@@ -58,7 +51,7 @@ function MealCalendar() {
 
       return baseEvent;
     });
-  }, [mealEvents]);
+  }, [data?.getMealEventsByUserId]);
 
   const handleEventClick = (clickInfo: EventClickArg) => {
     const meal = clickInfo.event.extendedProps as MealEventDTO;

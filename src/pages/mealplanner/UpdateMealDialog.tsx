@@ -153,7 +153,10 @@ const UpdateMealDialog = ({
       {confirmDeleteOpen && (
         <DeleteMealDialog
           open={confirmDeleteOpen}
-          onClose={() => setConfirmDeleteOpen(false)}
+          onClose={() => {
+            setConfirmDeleteOpen(false);
+            onClose();
+          }}
           id={defaultValues?.id ?? ""}
           itemName={defaultValues?.title}
         />
