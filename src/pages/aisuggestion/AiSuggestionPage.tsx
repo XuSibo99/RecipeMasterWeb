@@ -8,25 +8,37 @@ import {
   ListItem,
   ListItemText,
 } from "@mui/material";
+import { useMutation } from "@apollo/client";
+import { GENERATE_AI_MEAL_SUGGESTION } from "../../services/aisuggestion/AiSuggestionService";
 
 function AiSuggestionPage() {
   const [prompt, setPrompt] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
+  const [generateSuggestion] = useMutation(GENERATE_AI_MEAL_SUGGESTION);
+
   const handleSubmit = async () => {
     setLoading(true);
     setSuggestions([]);
 
-    // For now, use dummy suggestions
-    setTimeout(() => {
-      setSuggestions([
-        "Salmon Rice Bowl with Broccoli",
-        "Teriyaki Salmon Stir-fry",
-        "Salmon and Veggie Grain Bowl",
-      ]);
+    try {
+      const res = await generateSuggestion({
+        variables: { prompt: prompt },
+      });
+
+      const text = res.data?.generateAiMealSuggestion || "";
+      const lines = text
+        .split("\n")
+        .map((line: string) => line.replace(/^\d+[).\s-]?\s*/, "").trim())
+        .filter(Boolean);
+
+      setSuggestions(lines);
+    } catch (err) {
+      console.error("Failed to fetch AI suggestions:", err);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
