@@ -16,6 +16,8 @@ import {
 } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import StarIcon from "@mui/icons-material/Star";
+import StarBorderIcon from "@mui/icons-material/StarBorder";
 import { useMutation } from "@apollo/client";
 import {
   DietaryRestriction,
@@ -29,6 +31,8 @@ function prefsToRestrictions(p: Prefs): DietaryRestriction[] {
 }
 
 function AiSuggestionPage() {
+  const FAVORITES_KEY = "aiFavorites";
+
   const DEFAULTPREFS: Prefs = {
     [DietaryRestriction.VEGETARIAN]: false,
     [DietaryRestriction.GLUTEN_FREE]: false,
@@ -46,6 +50,24 @@ function AiSuggestionPage() {
     }
   });
 
+  const [favorites, setFavorites] = useState<string[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem(FAVORITES_KEY) || "[]");
+    } catch {
+      return [];
+    }
+  });
+
+  const toggleFavorite = (recipe: string) => {
+    setFavorites((favs) => {
+      const next = favs.includes(recipe)
+        ? favs.filter((r) => r !== recipe)
+        : [...favs, recipe];
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(next));
+      return next;
+    });
+  };
+
   const [prompt, setPrompt] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -60,14 +82,14 @@ function AiSuggestionPage() {
     const restrictions = prefsToRestrictions(prefs);
     try {
       const { data } = await generateSuggestion({
-        variables: { prompt, restrictions: restrictions },
+        variables: { prompt, restrictions },
       });
       const text = data.generateAiMealSuggestion || "";
-      const lines = text
-        .split("\n")
-        .map((line: string) => line.replace(/^\d+[).\s-]?\s*/, "").trim())
-        .filter(Boolean);
-
+      // const lines = text
+      //   .split("\n")
+      //   .map((line: string) => line.replace(/^\d+[).\s-]?\s*/, "").trim())
+      //   .filter(Boolean);
+      const lines = JSON.parse(text) as string[];
       setSuggestions(lines);
     } catch (e: unknown) {
       console.error(e);
@@ -89,6 +111,7 @@ function AiSuggestionPage() {
         AI-Powered Recipe Suggestions
       </Typography>
 
+      {/* Dietary Preferences */}
       <Typography variant="subtitle1">Your dietary preferences:</Typography>
       <FormGroup row>
         {Object.values(DietaryRestriction).map((key) => (
@@ -98,27 +121,22 @@ function AiSuggestionPage() {
               <Checkbox
                 checked={prefs[key]}
                 onChange={(e) =>
-                  setPrefs((current) => ({
-                    ...current,
-                    [key]: e.target.checked,
-                  }))
+                  setPrefs((curr) => ({ ...curr, [key]: e.target.checked }))
                 }
               />
             }
-            label={(() => {
-              switch (key) {
-                case DietaryRestriction.VEGETARIAN:
-                  return "Vegetarian";
-                case DietaryRestriction.GLUTEN_FREE:
-                  return "Gluten-Free";
-                case DietaryRestriction.NUT_ALLERGY:
-                  return "Nut Allergy";
-              }
-            })()}
+            label={
+              key === DietaryRestriction.VEGETARIAN
+                ? "Vegetarian"
+                : key === DietaryRestriction.GLUTEN_FREE
+                ? "Gluten-Free"
+                : "Nut Allergy"
+            }
           />
         ))}
       </FormGroup>
 
+      {/* Prompt input */}
       <TextField
         label="What do you feel like eating?"
         fullWidth
@@ -144,6 +162,28 @@ function AiSuggestionPage() {
         </Typography>
       )}
 
+      {/* My Favorites */}
+      {favorites.length > 0 && (
+        <Box mt={4}>
+          <Typography variant="h6">My Favorites:</Typography>
+          <List>
+            {favorites.map((fav) => (
+              <ListItem key={fav}>
+                <ListItemText primary={fav} />
+                <IconButton
+                  edge="end"
+                  aria-label="unfavorite"
+                  onClick={() => toggleFavorite(fav)}
+                >
+                  <StarIcon color="warning" />
+                </IconButton>
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+      )}
+
+      {/* Suggestions */}
       {suggestions.length > 0 && (
         <Box mt={4} ref={resultsRef}>
           <Stack
@@ -173,13 +213,26 @@ function AiSuggestionPage() {
                     position: "relative",
                   }}
                   secondaryAction={
-                    <IconButton
-                      edge="end"
-                      aria-label="copy"
-                      onClick={() => navigator.clipboard.writeText(s)}
-                    >
-                      <ContentCopyIcon fontSize="small" />
-                    </IconButton>
+                    <>
+                      <IconButton
+                        edge="end"
+                        aria-label="favorite"
+                        onClick={() => toggleFavorite(s)}
+                      >
+                        {favorites.includes(s) ? (
+                          <StarIcon color="warning" />
+                        ) : (
+                          <StarBorderIcon />
+                        )}
+                      </IconButton>
+                      <IconButton
+                        edge="end"
+                        aria-label="copy"
+                        onClick={() => navigator.clipboard.writeText(s)}
+                      >
+                        <ContentCopyIcon fontSize="small" />
+                      </IconButton>
+                    </>
                   }
                 >
                   <ListItemText primary={s} />
