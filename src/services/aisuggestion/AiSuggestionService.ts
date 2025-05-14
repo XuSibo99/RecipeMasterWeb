@@ -6,11 +6,58 @@ export enum DietaryRestriction {
   NUT_ALLERGY = "NUT_ALLERGY",
 }
 
+export interface RecipeBrief {
+  id: number;
+  title: string;
+  image: string;
+  readyInMinutes: number;
+}
+
+export interface SearchRecipesData {
+  searchRecipes: RecipeBrief[];
+}
+
+export interface SearchRecipesVars {
+  query: string;
+  restrictions: DietaryRestriction[];
+  number: number;
+}
+
 export const GENERATE_AI_MEAL_SUGGESTION = gql`
   mutation GenerateAiMealSuggestion(
     $prompt: String!
     $restrictions: [DietaryRestriction!]!
   ) {
     generateAiMealSuggestion(prompt: $prompt, restrictions: $restrictions)
+  }
+`;
+
+export const SEARCH_RECIPES = gql`
+  query SearchRecipes(
+    $query: String!
+    $restrictions: [DietaryRestriction!]!
+    $number: Int!
+  ) {
+    searchRecipes(query: $query, restrictions: $restrictions, number: $number) {
+      id
+      title
+      image
+      readyInMinutes
+    }
+  }
+`;
+
+export const GET_RECIPE = gql`
+  query GetRecipe($id: ID!) {
+    getRecipe(id: $id) {
+      id
+      title
+      image
+      readyInMinutes
+      servings
+      summary
+      sourceUrl
+      extendedIngredients
+    }
   }
 `;
