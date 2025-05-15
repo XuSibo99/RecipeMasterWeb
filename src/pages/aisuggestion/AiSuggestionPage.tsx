@@ -8,9 +8,6 @@ import {
   FormControlLabel,
   Checkbox,
   IconButton,
-  List,
-  ListItem,
-  ListItemText,
   Stack,
   Card,
   CardMedia,
@@ -21,19 +18,18 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
-import { useMutation, useLazyQuery } from "@apollo/client";
+import { useMutation, useApolloClient } from "@apollo/client";
 import {
   DietaryRestriction,
   GENERATE_AI_MEAL_SUGGESTION,
-  RecipeBrief,
   SEARCH_RECIPES,
+  RecipeSummary,
   SearchRecipesData,
   SearchRecipesVars,
 } from "../../services/aisuggestion/AiSuggestionService";
 
 type Prefs = Record<DietaryRestriction, boolean>;
-
-const prefsToRestrictions = (p: Prefs): DietaryRestriction[] =>
+const prefsToRestrictions = (p: Prefs) =>
   (Object.keys(p) as DietaryRestriction[]).filter((k) => p[k]);
 
 export default function AiSuggestionPage() {
@@ -64,6 +60,10 @@ export default function AiSuggestionPage() {
     }
   });
 
+  useEffect(() => {
+    localStorage.setItem("dietPrefs", JSON.stringify(prefs));
+  }, [prefs]);
+
   const toggleFavorite = (title: string) => {
     setFavorites((favs) => {
       const next = favs.includes(title)
@@ -76,47 +76,52 @@ export default function AiSuggestionPage() {
 
   const [prompt, setPrompt] = useState("");
   const [loadingAI, setLoadingAI] = useState(false);
+  const [loadingRecipes, setLoadingRecipes] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
+  const client = useApolloClient();
   const [generateSuggestion] = useMutation(GENERATE_AI_MEAL_SUGGESTION);
-  const [searchRecipes, { data: recipeData, loading: loadingRecipes }] =
-    useLazyQuery<SearchRecipesData, SearchRecipesVars>(SEARCH_RECIPES);
+
+  const [recipes, setRecipes] = useState<RecipeSummary[]>([]);
 
   const handleSubmit = async () => {
     setLoadingAI(true);
     setError(null);
-
+    setRecipes([]);
     try {
-      const { data } = await generateSuggestion({
-        variables: {
-          prompt,
-          restrictions: prefsToRestrictions(prefs),
-        },
+      const { data: ai } = await generateSuggestion({
+        variables: { prompt, restrictions: prefsToRestrictions(prefs) },
       });
-      const titles = JSON.parse(data.generateAiMealSuggestion) as string[];
+      const titles = JSON.parse(ai.generateAiMealSuggestion) as string[];
 
-      await searchRecipes({
-        variables: {
-          query: prompt,
-          restrictions: prefsToRestrictions(prefs),
-          number: titles.length,
-        },
-      });
+      setLoadingRecipes(true);
+      const results = await Promise.all(
+        titles.map((t) =>
+          client.query<SearchRecipesData, SearchRecipesVars>({
+            query: SEARCH_RECIPES,
+            variables: {
+              query: t,
+              restrictions: prefsToRestrictions(prefs),
+              number: 1,
+            },
+          })
+        )
+      );
 
-      setTimeout(() => {
-        resultsRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
+      const fetched = results
+        .map((r) => r.data.searchRecipes[0])
+        .filter(Boolean) as RecipeSummary[];
+
+      setRecipes(fetched);
+      resultsRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch {
       setError("Sorry, something went wrong. Please try again.");
     } finally {
       setLoadingAI(false);
+      setLoadingRecipes(false);
     }
   };
-
-  useEffect(() => {
-    localStorage.setItem("dietPrefs", JSON.stringify(prefs));
-  }, [prefs]);
 
   return (
     <Box sx={{ maxWidth: 960, mx: "auto", mt: 4 }}>
@@ -133,16 +138,16 @@ export default function AiSuggestionPage() {
               <Checkbox
                 checked={prefs[key]}
                 onChange={(e) =>
-                  setPrefs((curr) => ({ ...curr, [key]: e.target.checked }))
+                  setPrefs((c) => ({ ...c, [key]: e.target.checked }))
                 }
               />
             }
             label={
-              key === DietaryRestriction.VEGETARIAN
-                ? "Vegetarian"
-                : key === DietaryRestriction.GLUTEN_FREE
-                ? "Gluten-Free"
-                : "Nut Allergy"
+              {
+                [DietaryRestriction.VEGETARIAN]: "Vegetarian",
+                [DietaryRestriction.GLUTEN_FREE]: "Gluten-Free",
+                [DietaryRestriction.NUT_ALLERGY]: "Nut Allergy",
+              }[key]
             }
           />
         ))}
@@ -163,6 +168,7 @@ export default function AiSuggestionPage() {
         color="primary"
         onClick={handleSubmit}
         disabled={loadingAI || !prompt.trim()}
+        startIcon={loadingAI ? <RefreshIcon /> : undefined}
       >
         {loadingAI ? "Generating..." : "Suggest Recipes"}
       </Button>
@@ -173,22 +179,6 @@ export default function AiSuggestionPage() {
         </Typography>
       )}
 
-      {favorites.length > 0 && (
-        <Box mt={4}>
-          <Typography variant="h6">My Favorites</Typography>
-          <List>
-            {favorites.map((fav) => (
-              <ListItem key={fav}>
-                <ListItemText primary={fav} />
-                <IconButton onClick={() => toggleFavorite(fav)}>
-                  <StarIcon color="warning" />
-                </IconButton>
-              </ListItem>
-            ))}
-          </List>
-        </Box>
-      )}
-
       <Box mt={4} ref={resultsRef}>
         <Stack
           direction="row"
@@ -196,17 +186,22 @@ export default function AiSuggestionPage() {
           justifyContent="space-between"
           mb={2}
         >
-          <Typography variant="h6">Suggestions</Typography>
-          <IconButton onClick={handleSubmit} disabled={loadingAI}>
+          <Typography variant="h6">Results</Typography>
+          <IconButton
+            onClick={handleSubmit}
+            disabled={loadingAI || loadingRecipes}
+          >
             <RefreshIcon />
           </IconButton>
         </Stack>
 
         {loadingRecipes ? (
-          <Typography>Loading recipes...</Typography>
+          <Typography>Loading recipes…</Typography>
+        ) : recipes.length === 0 ? (
+          <Typography color="text.secondary">No recipes yet.</Typography>
         ) : (
           <Grid container spacing={2}>
-            {recipeData?.searchRecipes.map((r: RecipeBrief) => (
+            {recipes.map((r) => (
               <Grid size={{ xs: 12, sm: 6, md: 4 }} key={r.id}>
                 <Card>
                   <CardMedia
@@ -217,29 +212,38 @@ export default function AiSuggestionPage() {
                   />
                   <CardContent>
                     <Typography variant="subtitle1">{r.title}</Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2">
                       Ready in {r.readyInMinutes} mins
                     </Typography>
+                    <Typography variant="body2">
+                      Servings: {r.servings}
+                    </Typography>
+                    <Typography variant="body2">
+                      {r.calories.toFixed(0)} kcal
+                    </Typography>
                   </CardContent>
-                  <Stack
-                    direction="row"
-                    justifyContent="flex-end"
-                    spacing={1}
-                    pr={1}
-                    pb={1}
-                  >
-                    <IconButton onClick={() => toggleFavorite(r.title)}>
-                      {favorites.includes(r.title) ? (
-                        <StarIcon color="warning" />
-                      ) : (
-                        <StarBorderIcon />
-                      )}
-                    </IconButton>
-                    <IconButton
-                      onClick={() => navigator.clipboard.writeText(r.title)}
+                  <Stack direction="row" justifyContent="space-between" p={1}>
+                    <Button
+                      size="small"
+                      href={r.spoonacularSourceUrl || r.sourceUrl}
+                      target="_blank"
                     >
-                      <ContentCopyIcon fontSize="small" />
-                    </IconButton>
+                      View full recipe
+                    </Button>
+                    <Stack direction="row" spacing={1}>
+                      <IconButton onClick={() => toggleFavorite(r.title)}>
+                        {favorites.includes(r.title) ? (
+                          <StarIcon color="warning" />
+                        ) : (
+                          <StarBorderIcon />
+                        )}
+                      </IconButton>
+                      <IconButton
+                        onClick={() => navigator.clipboard.writeText(r.title)}
+                      >
+                        <ContentCopyIcon fontSize="small" />
+                      </IconButton>
+                    </Stack>
                   </Stack>
                 </Card>
               </Grid>

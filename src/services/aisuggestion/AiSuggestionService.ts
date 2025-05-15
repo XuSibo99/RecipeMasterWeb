@@ -6,15 +6,19 @@ export enum DietaryRestriction {
   NUT_ALLERGY = "NUT_ALLERGY",
 }
 
-export interface RecipeBrief {
+export interface RecipeSummary {
   id: number;
   title: string;
   image: string;
   readyInMinutes: number;
+  servings: number;
+  sourceUrl: string;
+  spoonacularSourceUrl: string;
+  calories: number;
 }
 
 export interface SearchRecipesData {
-  searchRecipes: RecipeBrief[];
+  searchRecipes: RecipeSummary[];
 }
 
 export interface SearchRecipesVars {
@@ -43,6 +47,10 @@ export const SEARCH_RECIPES = gql`
       title
       image
       readyInMinutes
+      servings
+      sourceUrl
+      spoonacularSourceUrl
+      calories
     }
   }
 `;
