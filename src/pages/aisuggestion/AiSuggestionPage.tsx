@@ -13,10 +13,12 @@ import {
   CardMedia,
   CardContent,
   Grid2 as Grid,
+  Skeleton,
 } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import StarIcon from "@mui/icons-material/Star";
+import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import { useMutation, useApolloClient } from "@apollo/client";
 import {
@@ -77,25 +79,39 @@ export default function AiSuggestionPage() {
   const [prompt, setPrompt] = useState("");
   const [loadingAI, setLoadingAI] = useState(false);
   const [loadingRecipes, setLoadingRecipes] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
-
+  const [hasSearched, setHasSearched] = useState(false);
   const client = useApolloClient();
   const [generateSuggestion] = useMutation(GENERATE_AI_MEAL_SUGGESTION);
 
   const [recipes, setRecipes] = useState<RecipeSummary[]>([]);
 
   const handleSubmit = async () => {
+    setHasSearched(true);
     setLoadingAI(true);
-    setError(null);
+    setLoadingRecipes(false);
+    setAiError(null);
+    setFetchError(null);
     setRecipes([]);
+
+    let titles: string[];
     try {
       const { data: ai } = await generateSuggestion({
         variables: { prompt, restrictions: prefsToRestrictions(prefs) },
       });
-      const titles = JSON.parse(ai.generateAiMealSuggestion) as string[];
+      titles = JSON.parse(ai.generateAiMealSuggestion) as string[];
+    } catch (e) {
+      console.error("AI error:", e);
+      setAiError("Failed to generate recipe suggestions from prompt");
+      setLoadingAI(false);
+      return;
+    }
+    setLoadingAI(false);
 
-      setLoadingRecipes(true);
+    setLoadingRecipes(true);
+    try {
       const results = await Promise.all(
         titles.map((t) =>
           client.query<SearchRecipesData, SearchRecipesVars>({
@@ -108,17 +124,15 @@ export default function AiSuggestionPage() {
           })
         )
       );
-
       const fetched = results
         .map((r) => r.data.searchRecipes[0])
         .filter(Boolean) as RecipeSummary[];
-
       setRecipes(fetched);
       resultsRef.current?.scrollIntoView({ behavior: "smooth" });
-    } catch {
-      setError("Sorry, something went wrong. Please try again.");
+    } catch (e) {
+      console.error("Fetch error:", e);
+      setFetchError("Failed to generate recipe details from Spoonacular");
     } finally {
-      setLoadingAI(false);
       setLoadingRecipes(false);
     }
   };
@@ -173,10 +187,18 @@ export default function AiSuggestionPage() {
         {loadingAI ? "Generating..." : "Suggest Recipes"}
       </Button>
 
-      {error && (
-        <Typography color="error" sx={{ mt: 2 }}>
-          {error}
-        </Typography>
+      {aiError && (
+        <Box sx={{ mt: 2 }}>
+          <Typography color="error">{aiError}</Typography>
+          <Button onClick={handleSubmit}>Regenerate recipes</Button>
+        </Box>
+      )}
+
+      {!aiError && fetchError && (
+        <Box sx={{ mt: 2 }}>
+          <Typography color="error">{fetchError}</Typography>
+          <Button onClick={handleSubmit}>Regenerate recipes</Button>
+        </Box>
       )}
 
       <Box mt={4} ref={resultsRef}>
@@ -196,9 +218,48 @@ export default function AiSuggestionPage() {
         </Stack>
 
         {loadingRecipes ? (
-          <Typography>Loading recipes…</Typography>
+          <Grid container spacing={2}>
+            {Array.from({ length: 6 }).map((_, idx) => (
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={idx}>
+                <Card>
+                  <Skeleton variant="rectangular" height={140} />
+                  <CardContent>
+                    <Skeleton width="60%" />
+                    <Skeleton width="40%" />
+                    <Skeleton width="30%" />
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        ) : !hasSearched ? (
+          <Typography
+            color="text.secondary"
+            sx={{ textAlign: "center", py: 4 }}
+          >
+            Enter a prompt above and click “Suggest Recipes” to begin.
+          </Typography>
         ) : recipes.length === 0 ? (
-          <Typography color="text.secondary">No recipes yet.</Typography>
+          <Box
+            sx={{
+              textAlign: "center",
+              py: 8,
+              color: "text.secondary",
+            }}
+          >
+            <RestaurantMenuIcon sx={{ fontSize: 64, mb: 2 }} />
+            <Typography variant="h6">No recipes found</Typography>
+            <Typography variant="body2" sx={{ mt: 1 }}>
+              Try a different prompt to discover new meals!
+            </Typography>
+            <Button
+              variant="outlined"
+              sx={{ mt: 3 }}
+              onClick={() => setRecipes([]) /* 或触发一次默认搜索 */}
+            >
+              Try again
+            </Button>
+          </Box>
         ) : (
           <Grid container spacing={2}>
             {recipes.map((r) => (
