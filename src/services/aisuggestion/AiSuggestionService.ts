@@ -10,22 +10,64 @@ export interface RecipeSummary {
   id: number;
   title: string;
   image: string;
-  readyInMinutes: number;
-  servings: number;
   sourceUrl: string;
   spoonacularSourceUrl: string;
-  calories: number;
 }
 
 export interface RecipeFull {
   id: number;
   title: string;
   image: string;
-  readyInMinutes: number;
-  servings: number;
-  summary: string;
-  sourceUrl: string;
-  extendedIngredients: string[];
+  sourceUrl?: string;
+  spoonacularSourceUrl?: string;
+  healthScore?: number;
+  calories?: number;
+  dishTypes?: string[];
+  cuisines?: string[];
+  readyInMinutes?: number;
+  servings?: number;
+  vegetarian?: boolean;
+  vegan?: boolean;
+  glutenFree?: boolean;
+  dairyFree?: boolean;
+  summary?: string;
+  instructions?: string;
+  analyzedInstructions?: Instruction[];
+  nutrition?: Nutrition;
+}
+
+export interface Instruction {
+  step: string;
+  ingredients: IngredientRef[];
+  equipment: EquipmentRef[];
+}
+
+export interface IngredientRef {
+  id: number;
+  name: string;
+}
+
+export interface EquipmentRef {
+  id: number;
+  name: string;
+}
+
+export interface Nutrition {
+  nutrients: Nutrient[];
+}
+
+export interface Nutrient {
+  name: string;
+  amount: number;
+  unit: string;
+}
+
+export interface GenerateAiData {
+  generateAiMealSuggestion: string;
+}
+export interface GenerateAiVars {
+  prompt: string;
+  restrictions: DietaryRestriction[];
 }
 
 export interface SearchRecipesData {
@@ -41,6 +83,7 @@ export interface SearchRecipesVars {
 export interface BatchSearchRecipesData {
   searchRecipesByTitles: RecipeSummary[];
 }
+
 export interface BatchSearchRecipesVars {
   titles: string[];
   restrictions: DietaryRestriction[];
@@ -73,26 +116,8 @@ export const SEARCH_RECIPES = gql`
       id
       title
       image
-      readyInMinutes
-      servings
       sourceUrl
       spoonacularSourceUrl
-      calories
-    }
-  }
-`;
-
-export const GET_RECIPE = gql`
-  query GetRecipe($id: ID!) {
-    getRecipe(id: $id) {
-      id
-      title
-      image
-      readyInMinutes
-      servings
-      summary
-      sourceUrl
-      extendedIngredients
     }
   }
 `;
@@ -106,11 +131,50 @@ export const BATCH_SEARCH_RECIPES = gql`
       id
       title
       image
-      readyInMinutes
-      servings
       sourceUrl
       spoonacularSourceUrl
+    }
+  }
+`;
+
+export const GET_RECIPE = gql`
+  query GetRecipe($id: ID!) {
+    getRecipe(id: $id) {
+      id
+      title
+      image
+      sourceUrl
+      spoonacularSourceUrl
+      healthScore
       calories
+      dishTypes
+      cuisines
+      readyInMinutes
+      servings
+      vegetarian
+      vegan
+      glutenFree
+      dairyFree
+      summary
+      instructions
+      analyzedInstructions {
+        step
+        ingredients {
+          id
+          name
+        }
+        equipment {
+          id
+          name
+        }
+      }
+      nutrition {
+        nutrients {
+          name
+          amount
+          unit
+        }
+      }
     }
   }
 `;

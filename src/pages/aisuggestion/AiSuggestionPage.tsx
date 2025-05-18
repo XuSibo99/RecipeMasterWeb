@@ -236,21 +236,12 @@ export default function AiSuggestionPage() {
                   />
                   <CardContent>
                     <Typography variant="subtitle1">{r.title}</Typography>
-                    <Typography variant="body2">
-                      Ready in {r.readyInMinutes} mins
-                    </Typography>
-                    <Typography variant="body2">
-                      Servings: {r.servings}
-                    </Typography>
-                    <Typography variant="body2">
-                      {r.calories.toFixed(0)} kcal
-                    </Typography>
                   </CardContent>
                   <Stack direction="row" justifyContent="space-between" p={1}>
                     <Stack direction="row" spacing={1}>
                       <Button
                         size="small"
-                        href={r.spoonacularSourceUrl || r.sourceUrl}
+                        href={r.spoonacularSourceUrl ?? r.sourceUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label={`View full recipe for ${r.title}`}
