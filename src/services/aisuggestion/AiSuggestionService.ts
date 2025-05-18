@@ -17,6 +17,17 @@ export interface RecipeSummary {
   calories: number;
 }
 
+export interface RecipeFull {
+  id: number;
+  title: string;
+  image: string;
+  readyInMinutes: number;
+  servings: number;
+  summary: string;
+  sourceUrl: string;
+  extendedIngredients: string[];
+}
+
 export interface SearchRecipesData {
   searchRecipes: RecipeSummary[];
 }
@@ -25,6 +36,22 @@ export interface SearchRecipesVars {
   query: string;
   restrictions: DietaryRestriction[];
   number: number;
+}
+
+export interface BatchSearchRecipesData {
+  searchRecipesByTitles: RecipeSummary[];
+}
+export interface BatchSearchRecipesVars {
+  titles: string[];
+  restrictions: DietaryRestriction[];
+}
+
+export interface GetRecipeData {
+  getRecipe: RecipeFull;
+}
+
+export interface GetRecipeVars {
+  id: number;
 }
 
 export const GENERATE_AI_MEAL_SUGGESTION = gql`
@@ -66,6 +93,24 @@ export const GET_RECIPE = gql`
       summary
       sourceUrl
       extendedIngredients
+    }
+  }
+`;
+
+export const BATCH_SEARCH_RECIPES = gql`
+  query SearchRecipesByTitles(
+    $titles: [String!]!
+    $restrictions: [DietaryRestriction!]!
+  ) {
+    searchRecipesByTitles(titles: $titles, restrictions: $restrictions) {
+      id
+      title
+      image
+      readyInMinutes
+      servings
+      sourceUrl
+      spoonacularSourceUrl
+      calories
     }
   }
 `;

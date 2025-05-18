@@ -20,15 +20,10 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import StarIcon from "@mui/icons-material/Star";
 import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
-import { useMutation, useApolloClient } from "@apollo/client";
-import {
-  DietaryRestriction,
-  GENERATE_AI_MEAL_SUGGESTION,
-  SEARCH_RECIPES,
-  RecipeSummary,
-  SearchRecipesData,
-  SearchRecipesVars,
-} from "../../services/aisuggestion/AiSuggestionService";
+import { DietaryRestriction } from "../../services/aisuggestion/AiSuggestionService";
+import { useAiRecipes } from "../../components/hooks/useAiRecipes";
+import { useRecipeDetails } from "../../components/hooks/useRecipeDetails";
+import { RecipeDetailDialog } from "./RecipeDetailDialog";
 
 type Prefs = Record<DietaryRestriction, boolean>;
 const prefsToRestrictions = (p: Prefs) =>
@@ -77,64 +72,31 @@ export default function AiSuggestionPage() {
   };
 
   const [prompt, setPrompt] = useState("");
-  const [loadingAI, setLoadingAI] = useState(false);
-  const [loadingRecipes, setLoadingRecipes] = useState(false);
-  const [aiError, setAiError] = useState<string | null>(null);
-  const [fetchError, setFetchError] = useState<string | null>(null);
-  const resultsRef = useRef<HTMLDivElement>(null);
   const [hasSearched, setHasSearched] = useState(false);
-  const client = useApolloClient();
-  const [generateSuggestion] = useMutation(GENERATE_AI_MEAL_SUGGESTION);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
-  const [recipes, setRecipes] = useState<RecipeSummary[]>([]);
+  const {
+    recipes,
+    loadingAI,
+    loadingRecipes,
+    aiError,
+    fetchError,
+    search,
+    setRecipes,
+  } = useAiRecipes();
+
+  const {
+    openId,
+    recipe,
+    loadingRecipeDetail,
+    recipeDetailError,
+    open,
+    close,
+  } = useRecipeDetails();
 
   const handleSubmit = async () => {
     setHasSearched(true);
-    setLoadingAI(true);
-    setLoadingRecipes(false);
-    setAiError(null);
-    setFetchError(null);
-    setRecipes([]);
-
-    let titles: string[];
-    try {
-      const { data: ai } = await generateSuggestion({
-        variables: { prompt, restrictions: prefsToRestrictions(prefs) },
-      });
-      titles = JSON.parse(ai.generateAiMealSuggestion) as string[];
-    } catch (e) {
-      console.error("AI error:", e);
-      setAiError("Failed to generate recipe suggestions from prompt");
-      setLoadingAI(false);
-      return;
-    }
-    setLoadingAI(false);
-
-    setLoadingRecipes(true);
-    try {
-      const results = await Promise.all(
-        titles.map((t) =>
-          client.query<SearchRecipesData, SearchRecipesVars>({
-            query: SEARCH_RECIPES,
-            variables: {
-              query: t,
-              restrictions: prefsToRestrictions(prefs),
-              number: 1,
-            },
-          })
-        )
-      );
-      const fetched = results
-        .map((r) => r.data.searchRecipes[0])
-        .filter(Boolean) as RecipeSummary[];
-      setRecipes(fetched);
-      resultsRef.current?.scrollIntoView({ behavior: "smooth" });
-    } catch (e) {
-      console.error("Fetch error:", e);
-      setFetchError("Failed to generate recipe details from Spoonacular");
-    } finally {
-      setLoadingRecipes(false);
-    }
+    search(prompt, prefsToRestrictions(prefs));
   };
 
   return (
@@ -255,7 +217,7 @@ export default function AiSuggestionPage() {
             <Button
               variant="outlined"
               sx={{ mt: 3 }}
-              onClick={() => setRecipes([]) /* 或触发一次默认搜索 */}
+              onClick={() => setRecipes([])}
             >
               Try again
             </Button>
@@ -267,6 +229,7 @@ export default function AiSuggestionPage() {
                 <Card>
                   <CardMedia
                     component="img"
+                    loading="lazy"
                     height="140"
                     image={r.image}
                     alt={r.title}
@@ -284,15 +247,33 @@ export default function AiSuggestionPage() {
                     </Typography>
                   </CardContent>
                   <Stack direction="row" justifyContent="space-between" p={1}>
-                    <Button
-                      size="small"
-                      href={r.spoonacularSourceUrl || r.sourceUrl}
-                      target="_blank"
-                    >
-                      View full recipe
-                    </Button>
                     <Stack direction="row" spacing={1}>
-                      <IconButton onClick={() => toggleFavorite(r.title)}>
+                      <Button
+                        size="small"
+                        href={r.spoonacularSourceUrl || r.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`View full recipe for ${r.title}`}
+                      >
+                        View
+                      </Button>
+                      <Button
+                        size="small"
+                        onClick={() => open(r.id)}
+                        aria-label={`View details for ${r.title}`}
+                      >
+                        Details
+                      </Button>
+                    </Stack>
+                    <Stack direction="row" spacing={1}>
+                      <IconButton
+                        onClick={() => toggleFavorite(r.title)}
+                        aria-label={
+                          favorites.includes(r.title)
+                            ? `Remove ${r.title} from favorites`
+                            : `Add ${r.title} to favorites`
+                        }
+                      >
                         {favorites.includes(r.title) ? (
                           <StarIcon color="warning" />
                         ) : (
@@ -301,6 +282,7 @@ export default function AiSuggestionPage() {
                       </IconButton>
                       <IconButton
                         onClick={() => navigator.clipboard.writeText(r.title)}
+                        aria-label={`Copy recipe title ${r.title}`}
                       >
                         <ContentCopyIcon fontSize="small" />
                       </IconButton>
@@ -312,6 +294,14 @@ export default function AiSuggestionPage() {
           </Grid>
         )}
       </Box>
+
+      <RecipeDetailDialog
+        open={openId !== null}
+        loading={loadingRecipeDetail}
+        recipe={recipe}
+        error={recipeDetailError?.message}
+        onClose={close}
+      />
     </Box>
   );
 }
